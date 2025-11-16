@@ -8,5 +8,6 @@ import { ExpenseHandlerModule } from '../expense-handler/expense-handler.module'
   imports: [UserModule, ExpenseHandlerModule],
   controllers: [WhatsappController],
   providers: [WhatsappService],
+  exports: [WhatsappService],
 })
 export class WhatsappModule {}
