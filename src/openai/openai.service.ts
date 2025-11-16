@@ -220,7 +220,7 @@ Respond ONLY with a JSON object in this exact format:
         function: {
           name: 'get_total_expenses_this_week',
           description:
-            'Get the total amount and count of expenses for this week',
+            'Get the total amount and count of expenses for this week. Use this ONLY when user asks for total expenses this week WITHOUT mentioning a specific category. If user mentions a category (e.g., "food this week", "how much on food this week"), use get_total_expenses_by_date_range instead with category parameter.',
           parameters: {
             type: 'object',
             properties: {},
@@ -323,7 +323,7 @@ Respond ONLY with a JSON object in this exact format:
         function: {
           name: 'get_total_expenses_by_date_range',
           description:
-            'Get total expenses for a specific date range. Use this when user asks for total spending for "yesterday", "last week", "last month", or any specific date range. You must calculate the start and end dates based on the user\'s request.',
+            'Get total expenses for a specific date range. Use this when user asks for total spending for "yesterday", "last week", "last month", or any specific date range. You must calculate the start and end dates based on the user\'s request. If the user mentions a category (e.g., "food", "transport"), include it in the category parameter to filter by that category.',
           parameters: {
             type: 'object',
             properties: {
@@ -336,6 +336,11 @@ Respond ONLY with a JSON object in this exact format:
                 type: 'string',
                 description:
                   'End date in YYYY-MM-DD format. Calculate this based on user request. If not specified, defaults to today.',
+              },
+              category: {
+                type: 'string',
+                description:
+                  'Optional category to filter by (e.g., "food", "transport", "electronics"). Use this when user asks about spending on a specific category for a date range (e.g., "how much on food this week").',
               },
             },
             required: ['startDate'],
@@ -408,7 +413,11 @@ Respond ONLY with a JSON object in this exact format:
 When the user wants to add an expense, use the add_expense function. After adding an expense, always include the total expenses for this month in your response.
 When the user wants to delete or remove an expense, use the delete_expense function.
 When the user asks about their expenses (totals, latest, recent, etc.), use the appropriate query function.
-When the user asks for expenses for a specific date range (e.g., "yesterday", "last week", "last month", "between dates"), use get_expenses_by_date_range or get_total_expenses_by_date_range. You must calculate the start and end dates in YYYY-MM-DD format based on the user's request. IMPORTANT: Always use the current date as a reference point. For example:
+When the user asks for expenses for a specific date range (e.g., "yesterday", "last week", "last month", "between dates"), use get_expenses_by_date_range or get_total_expenses_by_date_range. You must calculate the start and end dates in YYYY-MM-DD format based on the user's request. IMPORTANT: Always use the current date as a reference point. 
+When the user asks about spending on a SPECIFIC CATEGORY for a date range (e.g., "how much on food this week", "food expenses last month"), use get_total_expenses_by_date_range with the category parameter. For example:
+- "How much on food this week" → Calculate this week's dates, use get_total_expenses_by_date_range with startDate, endDate, and category: "food"
+- "Food expenses last month" → Calculate last month's dates, use get_total_expenses_by_date_range with startDate, endDate, and category: "food"
+For example:
 - "yesterday" → Calculate yesterday's date: if today is 2025-11-16, then yesterday is 2025-11-15. Use startDate: "2025-11-15", endDate: "2025-11-15"
 - "last week" → Calculate 7 days ago from today. Use startDate: (today - 7 days), endDate: today's date
 - "last month" → Calculate first and last day of previous month. If today is November 2025, last month is October 2025. Use startDate: "2025-10-01", endDate: "2025-10-31"

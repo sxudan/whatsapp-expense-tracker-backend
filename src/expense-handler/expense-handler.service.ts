@@ -264,6 +264,7 @@ export class ExpenseHandlerService {
         const rangeArgs = args as {
           startDate: string;
           endDate?: string;
+          category?: string;
         };
 
         // Parse dates and ensure they're in local timezone
@@ -281,6 +282,24 @@ export class ExpenseHandlerService {
         console.log(
           `Querying total expenses from ${rangeArgs.startDate} to ${rangeArgs.endDate || 'today'}`,
         );
+
+        // If category is specified, filter by category
+        if (rangeArgs.category) {
+          const categoryData =
+            await this.expenseService.getExpensesByCategoryForDateRange(
+              userId,
+              rangeArgs.category,
+              startDate,
+              endDate,
+            );
+          return {
+            total: categoryData.total,
+            count: categoryData.count,
+            category: rangeArgs.category,
+            startDate: rangeArgs.startDate,
+            endDate: rangeArgs.endDate || this.formatDate(new Date()),
+          };
+        }
 
         const expenses =
           await this.expenseService.getExpensesByUserAndDateRange(

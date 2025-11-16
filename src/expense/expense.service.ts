@@ -223,6 +223,37 @@ export class ExpenseService {
     return { total, count: expenses.length };
   }
 
+  async getExpensesByCategoryForDateRange(
+    userId: number,
+    category: string,
+    startDate: Date,
+    endDate: Date,
+  ): Promise<{ total: number; count: number }> {
+    const expenses = await this.getExpensesByUserAndDateRange(
+      userId,
+      startDate,
+      endDate,
+    );
+
+    // Normalize category for comparison
+    const normalizedCategory = category.trim().toLowerCase();
+
+    // Filter by category and sum
+    const filteredExpenses = expenses.filter((expense) => {
+      const expenseCategory = expense.category
+        ? expense.category.trim().toLowerCase()
+        : 'uncategorized';
+      return expenseCategory === normalizedCategory;
+    });
+
+    const total = filteredExpenses.reduce((sum, expense) => {
+      const amount = Number(expense.amount);
+      return sum + amount;
+    }, 0);
+
+    return { total, count: filteredExpenses.length };
+  }
+
   async getExpensesByCategory(
     userId: number,
     period?: 'this_month' | 'this_week' | 'all_time',
